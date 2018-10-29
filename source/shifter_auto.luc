@@ -1,0 +1,363 @@
+module shifter_auto (
+    input clk,  // clock
+    input rst,  // reset
+    input trigger,
+    output io_sel[4],
+    output io_seg[8]
+  ) {
+  
+  shifter shifter;
+  
+  .clk(clk){
+    .rst(rst){
+    fsm state = {IDLE, TEST1, TEST2, TEST3, TEST4, TEST5, TEST6, TEST7,
+                 TEST8, TEST9, TEST10, TEST11, TEST12, TEST13, TEST14,
+                 TEST15, TEST16, TEST17, TEST18, TEST19, TEST20, 
+                 TEST21, TEST22, TEST23, TEST24, PASS, FAIL};
+    multi_seven_seg seg;
+    stateCounter sc;
+    }
+  }
+  always {
+    shifter.a = 0;
+    shifter.b = 0;
+    shifter.alufn = 6b0;
+    io_seg = 8hff;
+    
+    // The segments will display "HELO" by default
+    seg.values = {4ha, 4hb, 4hc, 4h0};
+    
+    io_seg = ~seg.seg; // Connect segments to the driver
+    io_sel = ~seg.sel; // Connect digit select to the driver
+    
+    if(trigger == 0){
+      state.d = state.IDLE;
+  }
+    case(state.q){
+      state.IDLE: 
+        if(trigger == 1){
+          state.d = state.TEST1;}
+         
+      state.TEST1: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b0000000000000001;
+        shifter.alufn = 6h20;
+        seg.values = {4ha, 4ha, 4ha, 4h1}; 
+        // Check if the outputs is expected
+        //If it is correct go to the next test case(nest state), if not, go to fail state
+        
+        if (shifter.out == 16b0100010111001000 && sc.inc_state == 1) {
+          state.d = state.TEST2;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+        
+      state.TEST2: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b0000000000100000;
+        shifter.alufn = 6h20;
+        seg.values = {4ha, 4ha, 4ha, 4h2}; 
+
+        if (shifter.out == 16b0010001011100100 && sc.inc_state == 1) {
+          state.d = state.TEST3;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST3: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b0000000000001111;
+        shifter.alufn = 6h20;
+        seg.values = {4ha, 4ha, 4ha, 4h3};  
+
+        if (shifter.out == 16b0000000000000000 && sc.inc_state == 1) {
+          state.d = state.TEST4;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+            
+      state.TEST4: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b1111111110100001;
+        shifter.alufn = 6h20;
+        seg.values = {4ha, 4ha, 4ha, 4h4};  
+        
+        if (shifter.out == 16b0100010111001000 && sc.inc_state == 1) {
+          state.d = state.TEST5;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST5: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b1111111110100000;
+        shifter.alufn = 6h20;
+        seg.values = {4ha, 4ha, 4ha, 4h5};  
+        if (shifter.out == 16b0010001011100100 && sc.inc_state == 1) {
+          state.d = state.TEST6;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST6: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b1111111110101111;
+        shifter.alufn = 6h20;
+        seg.values = {4ha, 4ha, 4ha, 4h6}; 
+
+        if (shifter.out == 16b0000000000000000 && sc.inc_state == 1) {
+          state.d = state.TEST7;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+        
+      state.TEST7: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b0000000000000001;
+        shifter.alufn = 6h21;
+        seg.values = {4ha, 4ha, 4ha, 4h7};  
+
+        if (shifter.out == 16b0001000101110010 && sc.inc_state == 1) {
+          state.d = state.TEST8;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+        
+      state.TEST8: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b0000000000100000;
+        shifter.alufn = 6h21;
+        seg.values = {4ha, 4ha, 4ha, 4h8}; 
+
+        if (shifter.out == 16b0010001011100100 && sc.inc_state == 1) {
+          state.d = state.TEST9;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST9: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b0000000000001111;
+        shifter.alufn = 6h21;
+        seg.values = {4ha, 4ha, 4ha, 4h9};  // 3
+
+        if (shifter.out == 16b0000000000000000 && sc.inc_state == 1) {
+          state.d = state.TEST10;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+            
+      state.TEST10: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b1111111110100001;
+        shifter.alufn = 6h21;
+        seg.values = {4ha, 4ha, 4h1, 4h0}; 
+
+        if (shifter.out == 16b0001000101110010 && sc.inc_state == 1) {
+          state.d = state.TEST11;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST11: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b1111111110100000;
+        shifter.alufn = 6h21;
+        seg.values = {4ha, 4ha, 4h1, 4h1}; 
+
+        if (shifter.out == 16b0010001011100100 && sc.inc_state == 1) {
+          state.d = state.TEST12;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST12: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b1111111110101111;
+        shifter.alufn = 6h21;
+        seg.values = {4ha, 4ha, 4h1, 4h2};  
+
+        if (shifter.out == 16b0000000000000000 && sc.inc_state == 1) {
+          state.d = state.TEST13;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST13: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b0000000000000001;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h1, 4h3}; 
+
+        if (shifter.out == 16b0001000101110010 && sc.inc_state == 1) {
+          state.d = state.TEST14;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+        
+      state.TEST14: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b0000000000100000;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h1, 4h4}; 
+
+        if (shifter.out == 16b0010001011100100 && sc.inc_state == 1) {
+          state.d = state.TEST15;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST15: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b0000000000001111;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h1, 4h5}; 
+
+        if (shifter.out == 16b0000000000000000 && sc.inc_state == 1) {
+          state.d = state.TEST16;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+            
+      state.TEST16: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b1111111110100001;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h1, 4h6};
+
+        if (shifter.out == 16b0001000101110010 && sc.inc_state == 1) {
+          state.d = state.TEST17;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST17: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b1111111110100000;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h1, 4h7}; 
+
+        if (shifter.out == 16b0010001011100100 && sc.inc_state == 1) {
+          state.d = state.TEST18;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST18: 
+        shifter.a = 16b0010001011100100;
+        shifter.b = 16b1111111110101111;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h1, 4h8};
+
+        if (shifter.out == 16b0000000000000000 && sc.inc_state == 1) {
+          state.d = state.TEST19;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+       
+        
+      state.TEST19: 
+        shifter.a = 16b1100111100101100;
+        shifter.b = 16b0000000000000001;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h1, 4h9}; 
+
+        if (shifter.out == 16b1110011110010110 && sc.inc_state == 1) {
+          state.d = state.TEST20;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+        
+      state.TEST20: 
+        shifter.a = 16b1100111100101100;
+        shifter.b = 16b0000000000100000;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h2, 4h0}; 
+
+        if (shifter.out == 16b1100111100101100 && sc.inc_state == 1) {
+          state.d = state.TEST21;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST21: 
+        shifter.a = 16b1100111100101100;
+        shifter.b = 16b0000000000001111;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h2, 4h1}; 
+
+        if (shifter.out == 16b1111111111111111 && sc.inc_state == 1) {
+          state.d = state.TEST22;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+            
+      state.TEST22: 
+        shifter.a = 16b1100111100101100;
+        shifter.b = 16b1111111110100001;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h2, 4h2};
+
+        if (shifter.out == 16b1110011110010110 && sc.inc_state == 1) {
+          state.d = state.TEST23;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST23: 
+        shifter.a = 16b1100111100101100;
+        shifter.b = 16b1111111110100000;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h2, 4h3}; 
+
+        if (shifter.out == 16b1100111100101100 && sc.inc_state == 1) {
+          state.d = state.TEST24;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+          
+      state.TEST24: 
+        shifter.a = 16b1100111100101100;
+        shifter.b = 16b1111111110101111;
+        shifter.alufn = 6h23;
+        seg.values = {4ha, 4ha, 4h2, 4h4};
+
+        if (shifter.out == 16b1111111111111111 && sc.inc_state == 1) {
+          state.d = state.PASS;
+        }
+
+        else if (sc.inc_state == 1) {
+          state.d = state.FAIL;}
+             
+      state.FAIL:
+        seg.values = {4hf, 4he, 4hd, 4hd};
+        
+      state.PASS:
+        seg.values = {4hd, 4he, 4hd, 4hd};
+      
+}
+}
+}
